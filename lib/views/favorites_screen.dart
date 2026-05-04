@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onus2/views/cart_screen.dart';
+import 'package:onus2_flutter/views/cart_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorites_provider.dart';
 import '../data/dummy_data.dart';

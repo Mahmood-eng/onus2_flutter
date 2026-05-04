@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onus2/data/dummy_data.dart';
+import 'package:onus2_flutter/data/dummy_data.dart';
 
 class CartProvider with ChangeNotifier {
   final Map<String, int> _items = {}; // ProductID : Quantity
