@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
-import '../data/dummy_data.dart';
+import '../data_api/prodcut_service.dart';
 import '../core/constants/colors.dart';
 
 class CartScreen extends StatefulWidget {
@@ -18,7 +18,9 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-    final cartItems = cart.items.keys.toList();
+    final cartItems = cart.items.keys
+        .where((id) => ProductService.getProductById(id) != null)
+        .toList();
 
     if (!_hasSelectedOnOpen && cart.items.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,9 +52,13 @@ class _CartScreenState extends State<CartScreen> {
                   child: ListView.builder(
                     itemCount: cartItems.length,
                     itemBuilder: (ctx, i) {
-                      final product = dummyProducts.firstWhere(
-                        (p) => p.id == cartItems[i],
+                      final product = ProductService.getProductById(
+                        cartItems[i],
                       );
+                      if (product == null) {
+                        return SizedBox.shrink();
+                      }
+
                       return Card(
                         margin: EdgeInsets.symmetric(
                           horizontal: 16,
@@ -192,7 +198,7 @@ class _CartScreenState extends State<CartScreen> {
     onTap: tap,
     child: Container(
       decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.1),
+        color: Colors.orange.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Icon(icon, size: 20, color: AppColors.primary),

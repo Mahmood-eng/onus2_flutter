@@ -14,31 +14,29 @@ class CategoryGrid extends StatelessWidget {
   });
 
   IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'All':
+    switch (category.toLowerCase()) {
+      case 'all':
         return Icons.category;
-      case 'Laptops':
+      case 'laptops':
         return Icons.laptop;
-      case 'Keyboards':
-        return Icons.keyboard;
-      case 'Mice':
-        return Icons.mouse;
-      case 'Tablets':
-        return Icons.tablet;
-      case 'Headphones':
-        return Icons.headphones;
-      case 'Monitors':
-        return Icons.monitor;
-      case 'Audio':
-        return Icons.speaker;
-      case 'Wearables':
-        return Icons.watch;
-      case 'Accessories':
-        return Icons.devices_other;
-      case 'Furniture':
+      case 'smartphones':
+        return Icons.smartphone;
+      case 'fragrances':
+        return Icons.spa;
+      case 'skincare':
+        return Icons.health_and_safety;
+      case 'groceries':
+        return Icons.shopping_bag;
+      case 'home-decoration':
+        return Icons.design_services;
+      case 'furniture':
         return Icons.chair;
-      case 'Networking':
-        return Icons.router;
+      case 'tops':
+        return Icons.checkroom;
+      case 'mens-shoes':
+      case 'womens-dresses':
+      case 'sunglasses':
+        return Icons.shopping_bag;
       default:
         return Icons.category;
     }

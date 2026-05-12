@@ -56,7 +56,7 @@ class ProductInfo extends StatelessWidget {
             Text(
               '\$${product.price.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: 26,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
               ),

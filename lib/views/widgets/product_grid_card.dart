@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onus2_flutter/core/constants/colors.dart';
 import 'package:onus2_flutter/core/extensions.dart';
+import 'package:onus2_flutter/models/product_model.dart';
 import 'package:onus2_flutter/providers/cart_provider.dart';
 import 'package:onus2_flutter/providers/favorites_provider.dart';
 import 'package:onus2_flutter/views/product_details_screen.dart';
@@ -9,7 +10,7 @@ import 'package:provider/provider.dart';
 class ProductGridCard extends StatelessWidget {
   final dynamic product;
 
-  const ProductGridCard({super.key, required this.product});
+  const ProductGridCard(List<Product> list, {super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {

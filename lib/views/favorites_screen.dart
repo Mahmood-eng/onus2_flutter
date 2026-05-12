@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:onus2_flutter/data_api/prodcut_service.dart';
+import 'package:onus2_flutter/models/product_model.dart';
 import 'package:onus2_flutter/views/cart_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorites_provider.dart';
-import '../data/dummy_data.dart';
 import '../core/constants/colors.dart';
 import '../core/extensions.dart';
 
@@ -12,14 +13,12 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favProvider = Provider.of<FavoritesProvider>(context);
-    final favList = dummyProducts
-        .where((p) => favProvider.favoriteIds.contains(p.id))
-        .toList();
+    final favoriteIds = favProvider.favoriteIds;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Favorites\n${favList.length} Items",
+          "Favorites\n${favoriteIds.length} Items",
           style: TextStyle(color: Colors.black, fontSize: 18),
         ),
         backgroundColor: Colors.white,
@@ -36,110 +35,142 @@ class FavoritesScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: favList.length,
-              itemBuilder: (ctx, i) {
-                final product = favList[i];
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                  shadowColor: Colors.black12,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.all(12),
-                    leading: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Checkbox(
-                          value: favProvider.selectedForAction.contains(
-                            product.id,
-                          ),
-                          onChanged: (_) =>
-                              favProvider.toggleSelection(product.id),
-                          activeColor: AppColors.primary,
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            product.imageUrl,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ],
+      body: favoriteIds.isEmpty
+          ? Center(
+              child: Text(
+                'No favorites yet',
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              ),
+            )
+          : FutureBuilder<List<Product>>(
+              future: ProductService.loadProductsByIds(favoriteIds),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error loading favorites'));
+                }
+
+                final products = snapshot.data ?? [];
+                if (products.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No favorite products were found locally.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
-                    title: Text(
-                      product.name,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (ctx, i) {
+                          final product = products[i];
+                          return Card(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                            shadowColor: Colors.black12,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(12),
+                              leading: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Checkbox(
+                                    value: favProvider.selectedForAction
+                                        .contains(product.id),
+                                    onChanged: (_) =>
+                                        favProvider.toggleSelection(product.id),
+                                    activeColor: AppColors.primary,
+                                  ),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      product.imageUrl,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              title: Text(
+                                product.name,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                product.category,
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      favProvider.toggleFavorite(product.id);
+                                      context.showAppSnackBar(
+                                        'Removed ${product.name} from favorites',
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.favorite,
+                                      color: AppColors.primary,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    "\$${product.price}",
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    subtitle: Text(
-                      product.category,
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            favProvider.toggleFavorite(product.id);
-                            context.showAppSnackBar(
-                              'Removed ${product.name} from favorites',
-                            );
-                          },
-                          child: Icon(
-                            Icons.favorite,
-                            color: AppColors.primary,
-                            size: 28,
-                          ),
+                    if (favProvider.selectedForAction.isNotEmpty)
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${favProvider.selectedForAction.length} items selected",
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                favProvider.removeSelected();
+                                context.showAppSnackBar(
+                                  'Removed selected items from favorites',
+                                );
+                              },
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              label: Text(
+                                "Remove from Favorites",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          "\$${product.price}",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                  ],
                 );
               },
             ),
-          ),
-          if (favProvider.selectedForAction.isNotEmpty)
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "${favProvider.selectedForAction.length} items selected",
-                  ),
-                  TextButton.icon(
-                    onPressed: () {
-                      favProvider.removeSelected();
-                      context.showAppSnackBar(
-                        'Removed selected items from favorites',
-                      );
-                    },
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    label: Text(
-                      "Remove from Favorites",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onus2_flutter/data/dummy_data.dart';
+import '../data_api/prodcut_service.dart';
 
 class CartProvider with ChangeNotifier {
   final Map<String, int> _items = {}; // ProductID : Quantity
@@ -47,12 +47,9 @@ class CartProvider with ChangeNotifier {
   }
 
   double get subtotal {
-    return _items.entries.where((e) => _selectedItems.contains(e.key)).fold(0, (
-      sum,
-      entry,
-    ) {
-      final product = dummyProducts.firstWhere((p) => p.id == entry.key);
-      return sum + (product.price * entry.value);
+    return _items.entries.fold(0.0, (sum, entry) {
+      final product = ProductService.getProductById(entry.key);
+      return sum + ((product?.price ?? 0.0) * entry.value);
     });
   }
 }

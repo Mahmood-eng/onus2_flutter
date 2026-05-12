@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:onus2_flutter/core/constants/colors.dart';
-import '../data/dummy_data.dart';
 import 'category_products_screen.dart';
 import 'widgets/category_grid.dart';
 
@@ -20,7 +19,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     super.initState();
     categories = [
       'All',
-      ...{for (var product in dummyProducts) product.category},
+      'smartphones',
+      'laptops',
+      'fragrances',
+      'skincare',
+      'groceries',
+      'home-decoration',
+      'furniture',
+      'tops',
+      'mens-shoes',
+      'womens-dresses',
+      'sunglasses',
     ];
   }
 
@@ -55,18 +64,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               selectedCategory: selectedCategory,
               onCategorySelected: (category) {
                 setState(() => selectedCategory = category);
-                final products = category == 'All'
-                    ? dummyProducts
-                    : dummyProducts
-                          .where((p) => p.category == category)
-                          .toList();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CategoryProductsScreen(
-                      category: category,
-                      products: products,
-                    ),
+                    builder: (_) => CategoryProductsScreen(category: category),
                   ),
                 );
               },
