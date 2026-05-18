@@ -15,9 +15,9 @@ class Product {
     this.description = '',
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  factory Product.fromJson(Map<String, dynamic> json, [String? docId]) {
     return Product(
-      id: json['id']?.toString() ?? '',
+      id: docId ?? json['id']?.toString() ?? '',
       name: json['title'] ?? json['name'] ?? '',
       category: json['category'] ?? '',
       price: (json['price'] != null)

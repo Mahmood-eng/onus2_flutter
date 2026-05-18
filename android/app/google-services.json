@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "269901162260",
+    "project_id": "techstore-bb02f",
+    "storage_bucket": "techstore-bb02f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269901162260:android:4a1576bc810d0bf45dc401",
+        "android_client_info": {
+          "package_name": "com.example.onus2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBS0pe7OFG9ZHY-mfcgxJ5GqPN-YEnQEOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

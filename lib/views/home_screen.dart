@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:onus2_flutter/core/constants/colors.dart';
 import 'package:onus2_flutter/data_api/prodcut_service.dart';
+import 'package:onus2_flutter/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import '../models/product_model.dart';
 import 'widgets/product_grid_card.dart';
+import 'add_product_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onCartPressed;
@@ -42,29 +46,43 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Home",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-              ),
-            ),
-            Text(
-              "hello mahmood",
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-          ],
+        title: Consumer<AuthProvider>(
+          builder: (context, auth, child) {
+            final greeting = auth.currentUser?.simpleName ?? 'Guest';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Home",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
+                ),
+                Text(
+                  "Welcome, $greeting",
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.shopping_cart_outlined, color: AppColors.primary),
             onPressed: widget.onCartPressed,
           ),
-          SizedBox(width: 16),
+          Consumer<AuthProvider>(
+            builder: (context, auth, child) {
+              return IconButton(
+                icon: Icon(Icons.logout, color: AppColors.primary),
+                onPressed: auth.isLoading ? null : auth.logout,
+                tooltip: 'Logout',
+              );
+            },
+          ),
+          const SizedBox(width: 16),
         ],
       ),
       body: Padding(
@@ -111,63 +129,37 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             Expanded(
-              child: FutureBuilder<ProductsResponse>(
-                future: ProductService.fetchProducts(activeCategory),
+              child: StreamBuilder<List<Product>>(
+                stream: ProductService.getProductsStream(activeCategory),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error loading products'));
+                    return Center(child: Text('حدث خطأ أثناء جلب البيانات'));
                   }
 
-                  final response = snapshot.data;
-                  if (response == null || response.products.isEmpty) {
+                  final products = snapshot.data;
+                  if (products == null || products.isEmpty) {
                     return Center(child: Text('No products found'));
                   }
 
-                  return Column(
-                    children: [
-                      if (response.isOffline)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            response.message ?? 'وضع الأوفلاين',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.orange[900],
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Roboto',
-                            ),
-                          ),
-                        ),
-                      Expanded(
-                        child: GridView.builder(
-                          padding: EdgeInsets.all(10),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.65,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                              ),
-                          itemCount: response.products.length,
-                          itemBuilder: (ctx, index) {
-                            final product = response.products[index];
-                            return ProductGridCard(
-                              response.products,
-                              product: product,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                  return GridView.builder(
+                    padding: EdgeInsets.all(10),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (ctx, index) {
+                      return ProductGridCard(
+                        products,
+                        product: products[index],
+                      );
+                    },
                   );
                 },
               ),
@@ -179,7 +171,12 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         child: Icon(Icons.add, color: Colors.white),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddProductScreen()),
+          );
+        },
       ),
     );
   }

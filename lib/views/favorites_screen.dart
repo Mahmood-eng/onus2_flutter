@@ -43,7 +43,7 @@ class FavoritesScreen extends StatelessWidget {
               ),
             )
           : FutureBuilder<List<Product>>(
-              future: ProductService.loadProductsByIds(favoriteIds),
+              future: ProductService.loadProductsByIds(favoriteIds as List<String>),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
