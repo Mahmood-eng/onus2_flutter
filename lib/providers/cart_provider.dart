@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../data_api/prodcut_service.dart';
 import '../models/product_model.dart';
 
 class CartProvider with ChangeNotifier {

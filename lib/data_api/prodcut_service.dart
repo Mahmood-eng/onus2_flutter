@@ -35,7 +35,7 @@ class ProductService {
         .get();
 
     return snapshot.docs
-        .map((doc) => Product.fromJson(doc.data()!, doc.id))
+        .map((doc) => Product.fromJson(doc.data(), doc.id))
         .toList();
   }
 }
